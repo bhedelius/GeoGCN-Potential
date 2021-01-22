@@ -2,7 +2,7 @@
 
 Dependencies:
 
-This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare dataset and libaries run the following from command line:
+This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare dataset and libaries, run the following from command line:
 
     pip install --pre dgl-cu101
     wget https://s3-eu-west-1.amazonaws.com/pstorage-npg-968563215/90576
