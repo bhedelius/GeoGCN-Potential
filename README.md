@@ -1,4 +1,4 @@
-# se3-forcefield
+# SE(3)-forcefield
 
 Dependencies:
 
