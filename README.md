@@ -2,7 +2,7 @@
 
 Dependencies:
 
-This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare dataset and libaries, run the following from command line:
+This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare dataset and libaries, run the following from the command line:
 
     pip install --pre dgl-cu101
     wget https://s3-eu-west-1.amazonaws.com/pstorage-npg-968563215/90576
@@ -19,7 +19,7 @@ I've had problems with the PYTHONPATH line, so an alternative is (in python):
     cwd = os.getcwd()
     sys.path.insert(1,os.path.join(cwd,'/ANI-1_release/readers/lib/'))
 
-You might also need h5py:
+You might also need to install h5py:
 
     pip install h5py
 
