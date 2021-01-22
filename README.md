@@ -22,4 +22,4 @@ You might also need h5py:
 
 TODO:
 
-It would be nice to have a setup.sh script to create/update a conda env that has all the dependencies.
+It would be nice to have a setup.sh script to create/update a conda env that sets up all the dependencies.
