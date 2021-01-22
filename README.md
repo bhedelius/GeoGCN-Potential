@@ -10,7 +10,7 @@ This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare d
     
 Hopefully you can use the pyanitools.py in this repo, otherwise:
 
-    export PYTHONPATH=${PYTHONPATH}:/${pwd}/ANI-1_release/readers/lib/
+    export PYTHONPATH=${PYTHONPATH}:$(pwd)/ANI-1_release/readers/lib/
 
 I've had problems with the PYTHONPATH line, so an alternative is (in python):
 
