@@ -5,7 +5,7 @@ Dependencies:
 This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare dataset and libaries, run the following from the command line:
 
     pip install --pre dgl-cu101
-    wget https://s3-eu-west-1.amazonaws.com/pstorage-npg-968563215/90576
+    wget https://s3-eu-west-1.amazonaws.com/pstorage-npg-968563215/9057631/ANI1_release.tar.gz
     tar -xvf ANI1_release.tar.gz
     
 Hopefully you can use the pyanitools.py in this repo, otherwise:
