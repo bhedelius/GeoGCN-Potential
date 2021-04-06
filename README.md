@@ -1,28 +1,12 @@
 # SE(3)-forcefield
 
+Dataset:
+
+    https://s3-eu-west-1.amazonaws.com/pstorage-npg-968563215/18112775/ani1xrelease.h5
+
 Dependencies:
 
-This repo uses the ANI-1 dataset/reader and the Deep Graph Library. To prepare dataset and libaries, run the following from the command line:
-
+    pip install torch torchvision torchaudio
     pip install --pre dgl-cu101
-    wget https://s3-eu-west-1.amazonaws.com/pstorage-npg-968563215/9057631/ANI1_release.tar.gz
-    tar -xvf ANI1_release.tar.gz
-    
-Hopefully you can use the pyanitools.py in this repo, otherwise:
-
-    export PYTHONPATH=${PYTHONPATH}:$(pwd)/ANI-1_release/readers/lib/
-
-I've had problems with the PYTHONPATH line, so an alternative is (in python):
-
-    import sys
-    import os
-    cwd = os.getcwd()
-    sys.path.insert(1,os.path.join(cwd,'/ANI-1_release/readers/lib/'))
-
-You might also need to install h5py:
-
     pip install h5py
-
-TODO:
-
-It would be nice to have a setup.sh script to create/update a conda env that sets up all the dependencies.
+    pip install lie-learn
