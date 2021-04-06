@@ -6,7 +6,7 @@ Dataset:
 
 Dependencies:
 
-    pip install torch torchvision torchaudio
+    pip install torch
     pip install --pre dgl-cu101
     pip install h5py
     pip install lie-learn

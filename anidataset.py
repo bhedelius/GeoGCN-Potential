@@ -49,66 +49,78 @@ eye = np.eye(4)
 species_dict = {1: eye[0], 6: eye[1], 7: eye[2], 8: eye[3]}
 
 class AniDataset(Dataset):
-  def __init__(self, dir='./', cutoff=100):
-    super(AniDataset, self).__init__()
-    self.parse(dir)
-    self.cutoff = cutoff
+    def __init__(self, dir='./', mode='train'):
+        super(AniDataset, self).__init__()
+        self.mode = mode
+        self.parse(dir)
 
-  def parse(self, dir):
-    self.species = []
-    self.pos = []
-    self.forces = []
+    def parse(self, dir):
+        self.species = []
+        self.pos = []
+        self.forces = []
+        self.energies = []
+        h5file = os.path.join(dir,'ani1xrelease.h5')
+        iter = iter_data_buckets(h5file, keys=['wb97x_dz.forces', 'wb97x_dz.energy'])
 
-    h5file = os.path.join(dir,'ani1xrelease.h5')
-    iter = iter_data_buckets(h5file, keys=['mp2_tz.corr_energy','wb97x_tz.forces'])
-    for molecule in iter:
-      species = molecule['atomic_numbers']
-      for pos, forces  in zip(molecule['coordinates'], molecule['wb97x_tz.forces']):
-        self.species.append(species)
-        self.pos.append(pos)
-        self.forces.append(forces)
+        for i, molecule in enumerate(iter):
+            if (self.mode=='train' and i%5 != 0) or (self.mode=='val' and i%10 == 0) or (self.mode=='test' and i%10 == 5): 
+                species = molecule['atomic_numbers']
+                for pos, forces, energy in zip(molecule['coordinates'], molecule['wb97x_dz.forces'], molecule['wb97x_dz.energy']): 
+                    self.species.append(species)
+                    self.pos.append(pos)
+                    self.forces.append(forces)
+                    self.energies.append(energy)
 
-  @staticmethod
-  def get_edges(pos, cutoff):
-    dist_mat = np.linalg.norm(pos[None,:,:]-pos[:,None,:],axis=2)
+    def __getitem__(self, i):
+        pos = self.pos[i]
+        species = self.species[i]
+        forces = self.forces[i]
+        energy = self.energies[i]
 
-    u = []
-    v = []
-    N = len(pos)
-    for i in range(N):
-      for j in range(N):
-        if i!=j and dist_mat[i,j]<cutoff:
-          u.append(i)
-          v.append(j)
-    edges = torch.tensor(u, dtype=torch.long), torch.tensor(v, dtype=torch.long)
-    return edges
+        pos = torch.tensor(pos)
+        species = torch.tensor([species_dict[atom] for atom in species], dtype=torch.long)
+        forces = torch.tensor(forces)
 
-  def __getitem__(self, i):
-    pos = self.pos[i]
-    species = self.species[i]
-    forces = self.forces[i]
+        return pos, species, forces, energy
 
-    pos = torch.tensor(pos)
-    species = torch.tensor([species_dict[atom] for atom in species], dtype=torch.long)
-    forces = torch.tensor(forces)
+    def __len__(self):
+        return len(self.pos)
 
-    edges = self.get_edges(pos, self.cutoff)
+    def sample_batches(self, n_batches=1, max_seq_length=10000, max_n_edges=30000):
+        L = len(self)
+        position_tensor = torch.zeros(n_batches, max_seq_length, 3)
+        species_tensor = torch.zeros(n_batches, max_seq_length, 4)
+        forces_tensor = torch.zeros(n_batches, max_seq_length, 3)
+        energy_tensor = torch.zeros(n_batches, max_seq_length)
+        seq_length_tensor = torch.zeros(n_batches, max_seq_length)
 
-    graph = dgl.graph(edges)
-    graph.ndata['pos'] = pos
-    graph.ndata['species'] = species
-    graph.ndata['forces'] = forces
+        for i in range(n_batches):
+            idx = 0
 
-    return graph
+            # Get data for first item
+            m = np.random.randint(L)
+            pos, species, forces, energy = self[m]
+            l = len(pos)
 
-  def __len__(self):
-    return len(self.pos)
+            running_n_edges = l**2
+            j = 0
 
-#ani_dataset = AniDataset()
+            while running_n_edges < max_n_edges:
+                # Load data into vectors
+                position_tensor[i, idx:idx+l, :] = pos
+                species_tensor[i, idx:idx+l, :] = species
+                forces_tensor[i, idx:idx+l, :] = forces
+                energy_tensor[i, j] = energy
+                seq_length_tensor[i, j] = l
 
-#ani_dataset[4000]
+                idx += l
 
-#species = ani_dataset.species[0]
+                # Get data for next item
+                m = np.random.randint(L)
+                pos, species, forces, energy = self[m]
+                l = len(pos)
 
-#[species_dict[atom] for atom in species]
+                running_n_edges += l**2
+                j += 1
 
+        return position_tensor, species_tensor, forces_tensor, energy_tensor, seq_length_tensor
